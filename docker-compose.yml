@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: drf-app
+    network_mode: host
+    volumes:
+      - .:/practice
+    depends_on:
+      - nginx
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: drf-nginx
+    network_mode: host
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    restart: unless-stopped
+

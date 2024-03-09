@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "drf-practice"
+version = "0.1.0"
+description = "Stuff while learning DRF"
+authors = ["TheArtur128"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+djangorestframework = "^3.14.0"
+markdown = "^3.5.2"
+django-filter = "^24.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
