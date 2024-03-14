@@ -4,5 +4,6 @@ from main import views
 
 
 urlpatterns = [
-    path('', views.local_message_list)
+    path('temporary-message/<int:id>', views.local_message),
+    path('temporary-message-list', views.local_message_list),
 ]
