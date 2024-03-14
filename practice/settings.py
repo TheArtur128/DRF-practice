@@ -1,14 +1,30 @@
+from os import getenv
 from pathlib import Path
+from secrets import token_bytes
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = 'django-insecure-7bywc4j5o0!a()(ldn@wk$z+akduoj^d972!1#p3+@wssdirxm'
+SECRET_KEY = getenv(
+    "SECRET_KEY",
+    default=token_bytes(128).decode(errors="ignore"),
+)
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+HOST = getenv("HOST", default="http://localhost")
+
+ALLOWED_HOSTS = ['*']
+
+CSRF_TRUSTED_ORIGINS = [HOST]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -89,4 +105,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 STATIC_URL = 'static/'
-
