@@ -1,20 +1,22 @@
-from django.http import HttpRequest, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.http import Http404
 
-from rest_framework import parsers, status
+from rest_framework import decorators, parsers, status
+from rest_framework.response import Response
+from rest_framework.request import Request
+from rest_framework.views import APIView
 
 from main import serializers, local_messages
 
 
-@csrf_exempt
-def local_message_list(request: HttpRequest) -> JsonResponse:
+@decorators.api_view(['GET', 'POST'])
+def local_message_list(request: Request, format=None) -> Response:
     if request.method == 'GET':
         serializer = serializers.LocalMessageSerializer(
             local_messages.repository.get_all(),
             many=True,
         )
 
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
 
     elif request.method == 'POST':
         data = parsers.JSONParser().parse(request)
@@ -23,45 +25,39 @@ def local_message_list(request: HttpRequest) -> JsonResponse:
         if serializer.is_valid():
             serializer.save()
 
-            return JsonResponse(
-                serializer.data,
-                status=status.HTTP_201_CREATED,
-                safe=False,
-            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return JsonResponse(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
-            safe=False,
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
-def local_message(request: HttpRequest, id: int) -> JsonResponse:
-    message = local_messages.repository.get_by_id(id)
+@(lambda cls: cls.as_view())
+class local_message(APIView):
+    def get(self, request: Request, id: int, format=None) -> Response:
+        serializer = serializers.LocalMessageSerializer(self.__get_message(id))
 
-    if message is None:
-        return JsonResponse(dict(), status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data)
 
-    if request.method == 'GET':
-        serializer = serializers.LocalMessageSerializer(message)
+    def put(self, request: Request, id: int, format=None) -> Response:
+        message = self.__get_message(id)
 
-        return JsonResponse(serializer.data, safe=False)
-
-    elif request.method == 'PUT':
         data = parsers.JSONParser().parse(request)
         serializer = serializers.LocalMessageSerializer(message, data=data)
 
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(dict(), status=status.HTTP_204_NO_CONTENT)
+            return Response(dict(), status=status.HTTP_204_NO_CONTENT)
 
-        return JsonResponse(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
-            safe=False,
-        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
+    def delete(self, request: Request, id: int, format=None) -> Response:
         local_messages.repository.remove_by_id(id)
-        return JsonResponse(dict(), status=status.HTTP_204_NO_CONTENT)
+
+        return Response(dict(), status=status.HTTP_204_NO_CONTENT)
+
+    def __get_message(self, id: int) -> local_messages.Message:
+        message = local_messages.repository.get_by_id(id)
+
+        if message is None:
+            raise Http404(f"Message with id {id} does not exist")
+
+        return message
