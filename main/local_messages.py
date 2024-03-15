@@ -20,7 +20,7 @@ def creation_time_of(creation_time: Optional[datetime]) -> datetime:
 class Repository:
     def __init__(self, *messages: Message) -> None:
         self.__max_message_id = self.__get_max_id(messages)
-        self.__message_by_id = dict()
+        self.__message_by_id: dict[int, Message] = dict()
 
         for message in messages:
             self.save(message)
@@ -30,9 +30,6 @@ class Repository:
 
     def get_all(self) -> tuple[Message, ...]:
         return tuple(self.__message_by_id.values())
-
-    def get_id(self, message: Message) -> Optional[int]:
-        return self.__id_by_message.get(message)
 
     def save(self, message: Message) -> None:
         if message.id is not None and message.id > self.__max_message_id:
