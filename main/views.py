@@ -10,7 +10,7 @@ from main import serializers, local_messages
 
 
 @decorators.api_view(['GET', 'POST'])
-def local_message_list(
+def local_message_list_resource(
     request: Request,
     format: Optional[str] = None,
 ) -> Response:
@@ -32,7 +32,7 @@ def local_message_list(
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class _LocalMessage(APIView):
+class _LocalMessageResource(APIView):
     def get(
         self,
         request: Request,
@@ -79,4 +79,4 @@ class _LocalMessage(APIView):
         return message
 
 
-local_message = _LocalMessage.as_view()
+local_message_resource = _LocalMessageResource.as_view()
