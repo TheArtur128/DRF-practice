@@ -1,12 +1,14 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from django.http import Http404
 from rest_framework import decorators, parsers, status
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin
 
-from main import serializers, local_messages
+from main import serializers, local_messages, models
 
 
 @decorators.api_view(['GET', 'POST'])
@@ -32,7 +34,7 @@ def local_message_list_resource(
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class _LocalMessageResource(APIView):
+class LocalMessageResource(APIView):
     def get(
         self,
         request: Request,
@@ -79,4 +81,22 @@ class _LocalMessageResource(APIView):
         return message
 
 
-local_message_resource = _LocalMessageResource.as_view()
+if TYPE_CHECKING:
+    _GenericAPIView = GenericAPIView[models.Message]
+else:
+    _GenericAPIView = GenericAPIView 
+
+
+class OrmMessageListResource(
+    _GenericAPIView,
+    ListModelMixin,
+    CreateModelMixin,
+):
+    queryset = models.Message.objects.all().order_by("-creation_time")
+    serializer_class = serializers.OrmMessageSerializer
+
+    def get(self, request: Request) -> Response:
+        return self.list(request)
+
+    def post(self, request: Request) -> Response:
+        return self.create(request)

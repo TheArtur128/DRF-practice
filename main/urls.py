@@ -5,6 +5,7 @@ from main import views
 
 
 urlpatterns = format_suffix_patterns([
-    path('temporary-message/<int:id>', views.local_message_resource),
-    path('temporary-message-list', views.local_message_list_resource),
+    path('temporary-messages', views.local_message_list_resource),
+    path('temporary-message/<int:id>', views.LocalMessageResource.as_view()),
+    path('long-term-messages', views.OrmMessageListResource.as_view()),
 ])

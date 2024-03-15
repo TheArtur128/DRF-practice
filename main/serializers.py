@@ -11,7 +11,7 @@ class LocalMessageSerializer(serializers.Serializer[local_messages.Message]):
 
     id = serializers.IntegerField(read_only=True)
     payload = serializers.CharField(max_length=128)
-    creation_time = serializers.DateTimeField(required=False, read_only=True)
+    creation_time = serializers.DateTimeField(read_only=True)
 
     __repository: local_messages.Repository = local_messages.repository
 
@@ -34,4 +34,6 @@ class LocalMessageSerializer(serializers.Serializer[local_messages.Message]):
 class OrmMessageSerializer(serializers.ModelSerializer[models.Message]):
     class Meta:
         model = models.Message
-        fields = ["payload", "creation_time"]
+        fields = ["id", "payload", "creation_time"]
+
+    creation_time = serializers.DateTimeField(read_only=True)
