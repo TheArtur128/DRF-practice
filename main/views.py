@@ -1,11 +1,10 @@
 from typing import Optional, TYPE_CHECKING
 
-from django.http import Http404
-from rest_framework import decorators, parsers, status
+from django.http import Http404, HttpRequest
+from rest_framework import decorators, parsers, status, generics
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 
 from main import serializers, local_messages, models
@@ -82,9 +81,9 @@ class LocalMessageResource(APIView):
 
 
 if TYPE_CHECKING:
-    _GenericAPIView = GenericAPIView[models.Message]
+    _GenericAPIView = generics.GenericAPIView[models.Message]
 else:
-    _GenericAPIView = GenericAPIView 
+    _GenericAPIView = generics.GenericAPIView 
 
 
 class OrmMessageListResource(
@@ -100,3 +99,32 @@ class OrmMessageListResource(
 
     def post(self, request: Request) -> Response:
         return self.create(request)
+
+
+if TYPE_CHECKING:
+    _RetrieveAPIView = generics.RetrieveAPIView[models.Message]
+    _UpdateAPIView = generics.UpdateAPIView[models.Message]
+    _DestroyAPIView = generics.DestroyAPIView[models.Message]
+else:
+    _RetrieveAPIView = generics.RetrieveAPIView
+    _UpdateAPIView = generics.UpdateAPIView
+    _DestroyAPIView = generics.DestroyAPIView
+
+
+class OrmMessageResource(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
+    serializer_class = serializers.OrmMessageSerializer
+    __message_id: Optional[int] = None
+
+    def setup(
+        self,
+        request: HttpRequest,
+        id: int,
+        format: Optional[str] = None,
+    ) -> None:
+        super().setup(request, id, format)
+        self.__message_id = id
+
+    def get_object(self) -> models.Message:
+        assert self.__message_id is not None
+
+        return models.Message.objects.get(id=self.__message_id)
