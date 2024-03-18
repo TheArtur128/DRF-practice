@@ -1,5 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 
+from django.contrib import auth
 from django.http import Http404, HttpRequest
 from rest_framework import decorators, parsers, status, generics
 from rest_framework.response import Response
@@ -7,7 +8,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 
-from main import serializers, local_messages, models
+from main import serializers, local_messages, models, permissions
 
 
 @decorators.api_view(['GET', 'POST'])
@@ -93,6 +94,7 @@ class OrmMessageListEndpoint(
 ):
     queryset = models.Message.objects.all().order_by("-creation_time")
     serializer_class = serializers.OrmMessageSerializer
+    permission_classes = [permissions.ReadOnly | permissions.IsMessageAuthor]
 
     def get(self, request: Request) -> Response:
         return self.list(request)
@@ -113,6 +115,8 @@ else:
 
 class OrmMessageEndpoint(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
     serializer_class = serializers.OrmMessageSerializer
+    permission_classes = [permissions.ReadOnly | permissions.IsMessageAuthor]
+
     __message_id: Optional[int] = None
 
     def setup(
@@ -128,3 +132,25 @@ class OrmMessageEndpoint(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
         assert self.__message_id is not None
 
         return models.Message.objects.get(id=self.__message_id)
+
+
+if TYPE_CHECKING:
+    _ListAPIView = generics.ListAPIView[auth.models.User]
+else:
+    _ListAPIView = generics.ListAPIView
+
+
+class UserListEndpoint(_ListAPIView):
+    queryset = auth.models.User.objects.all()
+    serializer_class = serializers.UserSerializer
+
+
+if TYPE_CHECKING:
+    _UserEndpoint_RetrieveAPIView = generics.RetrieveAPIView[auth.models.User]
+else:
+    _UserEndpoint_RetrieveAPIView = generics.RetrieveAPIView
+
+
+class UserEndpoint(_UserEndpoint_RetrieveAPIView):
+    queryset = auth.models.User.objects.all()
+    serializer_class = serializers.UserSerializer

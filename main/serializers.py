@@ -1,5 +1,6 @@
 from typing import TypedDict
 
+from django.contrib import auth
 from rest_framework import serializers
 
 from main import models, local_messages
@@ -34,6 +35,15 @@ class LocalMessageSerializer(serializers.Serializer[local_messages.Message]):
 class OrmMessageSerializer(serializers.ModelSerializer[models.Message]):
     class Meta:
         model = models.Message
-        fields = ["id", "payload", "creation_time"]
+        fields = ["id", "author_id", "payload", "creation_time"]
 
     creation_time = serializers.DateTimeField(read_only=True)
+    author_id = serializers.IntegerField(source="user.id", allow_null=True)
+
+
+class UserSerializer(serializers.ModelSerializer[auth.models.User]):
+    class Meta:
+        model = auth.models.User
+        fields = ["id", "username", "messages"]
+
+    messages = OrmMessageSerializer(many=True, read_only=True)

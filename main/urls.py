@@ -9,4 +9,6 @@ urlpatterns = format_suffix_patterns([
     path('temporary-message/<int:id>', views.LocalMessageEndpoint.as_view()),
     path('long-term-messages', views.OrmMessageListEndpoint.as_view()),
     path('long-term-message/<int:id>', views.OrmMessageEndpoint.as_view()),
+    path('users', views.UserListEndpoint.as_view()),
+    path('user/<int:pk>', views.UserEndpoint.as_view()),
 ])
