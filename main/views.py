@@ -11,7 +11,7 @@ from main import serializers, local_messages, models
 
 
 @decorators.api_view(['GET', 'POST'])
-def local_message_list_resource(
+def local_message_list_endpoint(
     request: Request,
     format: Optional[str] = None,
 ) -> Response:
@@ -33,7 +33,7 @@ def local_message_list_resource(
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LocalMessageResource(APIView):
+class LocalMessageEndpoint(APIView):
     def get(
         self,
         request: Request,
@@ -86,7 +86,7 @@ else:
     _GenericAPIView = generics.GenericAPIView 
 
 
-class OrmMessageListResource(
+class OrmMessageListEndpoint(
     _GenericAPIView,
     ListModelMixin,
     CreateModelMixin,
@@ -111,7 +111,7 @@ else:
     _DestroyAPIView = generics.DestroyAPIView
 
 
-class OrmMessageResource(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
+class OrmMessageEndpoint(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
     serializer_class = serializers.OrmMessageSerializer
     __message_id: Optional[int] = None
 
