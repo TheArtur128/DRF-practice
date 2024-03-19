@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Callable, Optional
 
 from rest_framework import permissions, views
 from rest_framework.request import Request
@@ -9,6 +9,18 @@ from main import models
 class ReadOnly(permissions.BasePermission):
     def has_permission(self, request: Request, view: views.APIView) -> bool:
         return request.method in permissions.SAFE_METHODS
+
+
+class IsForCurrentUser(permissions.BasePermission):
+    _get_current_user_id: Callable[[Request, views.APIView], Optional[int]]
+
+    def has_permission(self, request: Request, view: views.APIView) -> bool:
+        if not request.data:
+            return True
+
+        current_user_id = self._get_current_user_id(request, view)
+
+        return current_user_id is None or current_user_id == request.user.id
 
 
 class IsMessageAuthor(permissions.BasePermission):

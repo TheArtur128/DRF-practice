@@ -92,9 +92,22 @@ class OrmMessageListEndpoint(
     ListModelMixin,
     CreateModelMixin,
 ):
+    class _IsMessageAuthorLazy(permissions.IsForCurrentUser):
+        def _get_current_user_id(
+            self,
+            request: Request,
+            view: APIView,
+        ) -> Optional[int]:
+            current_user_id = request.data.get("author_id", None)
+
+            try:
+                return int(current_user_id)
+            except ValueError:
+                return None
+
     queryset = models.Message.objects.all().order_by("-creation_time")
     serializer_class = serializers.OrmMessageSerializer
-    permission_classes = [permissions.ReadOnly | permissions.IsMessageAuthor]
+    permission_classes = [permissions.ReadOnly | _IsMessageAuthorLazy]
 
     def get(self, request: Request) -> Response:
         return self.list(request)

@@ -37,8 +37,21 @@ class OrmMessageSerializer(serializers.ModelSerializer[models.Message]):
         model = models.Message
         fields = ["id", "author_id", "payload", "creation_time"]
 
+    class _User(TypedDict):
+        id: int
+
+    class _DataToWrite(TypedDict):
+        user: "OrmMessageSerializer._User"
+        payload: str
+
     creation_time = serializers.DateTimeField(read_only=True)
     author_id = serializers.IntegerField(source="user.id", allow_null=True)
+
+    def create(self, validated_data: _DataToWrite) -> models.Message:
+        return models.Message.objects.create(
+            user_id=validated_data["user"]["id"],
+            payload=validated_data["payload"],
+        )
 
 
 class UserSerializer(serializers.ModelSerializer[auth.models.User]):
