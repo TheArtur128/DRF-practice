@@ -21,29 +21,29 @@ router.register('read-only-users', views.ReadOnlyUserViewSet, 'read-only-user')
 router.register('profiles', views.ProfileViewSet, 'profile')
 
 urlpatterns = format_suffix_patterns([
-    path('root', views.root_endpoint, name='root'),
+    path('root', views.root_view, name='root'),
     path(
         'temporary-messages',
-        views.local_message_list_endpoint,
+        views.local_message_list_view,
         name='temporary-messages',
     ),
     path(
         'temporary-message/<int:id>',
-        views.LocalMessageEndpoint.as_view(),
+        views.LocalMessageView.as_view(),
         name='temporary-message',
     ),
     path(
         'long-term-messages',
-        views.OrmMessageListEndpoint.as_view(),
+        views.OrmMessageListView.as_view(),
         name='long-term-messages',
     ),
     path(
         'long-term-message/<int:id>',
-        views.OrmMessageEndpoint.as_view(),
+        views.OrmMessageView.as_view(),
         name='long-term-message',
     ),
-    path('users', views.UserListEndpoint.as_view(), name='users'),
-    path('user/<int:pk>', views.UserEndpoint.as_view(), name='user'),
+    path('users', views.UserListView.as_view(), name='users'),
+    path('user/<int:pk>', views.UserView.as_view(), name='user'),
     path('read-only-users', read_only_user_list_view, name='read-only-users'),
     path('profiles', profile_list_view, name='profiles'),
     path('profile/<int:id>', profile_view, name='profile'),

@@ -14,7 +14,7 @@ from main import serializers, local_messages, models, permissions
 
 
 @decorators.api_view(['GET', 'POST'])
-def local_message_list_endpoint(
+def local_message_list_view(
     request: Request,
     format: Optional[str] = None,
 ) -> Response:
@@ -36,7 +36,7 @@ def local_message_list_endpoint(
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LocalMessageEndpoint(APIView):
+class LocalMessageView(APIView):
     def get(
         self,
         request: Request,
@@ -89,7 +89,7 @@ else:
     _GenericAPIView = generics.GenericAPIView 
 
 
-class OrmMessageListEndpoint(
+class OrmMessageListView(
     _GenericAPIView,
     ListModelMixin,
     CreateModelMixin,
@@ -128,7 +128,7 @@ else:
     _DestroyAPIView = generics.DestroyAPIView
 
 
-class OrmMessageEndpoint(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
+class OrmMessageView(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
     serializer_class = serializers.OrmMessageSerializer
     permission_classes = [permissions.ReadOnly | permissions.IsMessageAuthor]
 
@@ -158,24 +158,24 @@ else:
     _ListAPIView = generics.ListAPIView
 
 
-class UserListEndpoint(_ListAPIView):
+class UserListView(_ListAPIView):
     queryset = auth.models.User.objects.all()
     serializer_class = serializers.UserSerializer
 
 
 if TYPE_CHECKING:
-    _UserEndpoint_RetrieveAPIView = generics.RetrieveAPIView[auth.models.User]
+    _UserView_RetrieveAPIView = generics.RetrieveAPIView[auth.models.User]
 else:
-    _UserEndpoint_RetrieveAPIView = generics.RetrieveAPIView
+    _UserView_RetrieveAPIView = generics.RetrieveAPIView
 
 
-class UserEndpoint(_UserEndpoint_RetrieveAPIView):
+class UserView(_UserView_RetrieveAPIView):
     queryset = auth.models.User.objects.all()
     serializer_class = serializers.UserSerializer
 
 
 @decorators.api_view(["GET"])
-def root_endpoint(request: Request, format: Optional[str] = None) -> Response:
+def root_view(request: Request, format: Optional[str] = None) -> Response:
     reverse_ = partial(reverse, request=request, format=format)
 
     return Response({
