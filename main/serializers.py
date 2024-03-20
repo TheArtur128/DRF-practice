@@ -1,6 +1,7 @@
 from typing import TypedDict
 
 from django.contrib import auth
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from main import models, local_messages
@@ -70,4 +71,4 @@ class ProfileSerializer(serializers.ModelSerializer[auth.models.User]):
     password = serializers.CharField(write_only=True)
 
     def validate_password(self, password: str) -> str:
-        return auth.hashers.make_password(password)
+        return make_password(password)
