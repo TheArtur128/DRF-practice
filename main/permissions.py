@@ -1,5 +1,6 @@
 from typing import Any, Callable, Optional
 
+from django.contrib import auth
 from rest_framework import permissions, views
 from rest_framework.request import Request
 
@@ -11,7 +12,7 @@ class ReadOnly(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
-class IsForCurrentUser(permissions.BasePermission):
+class IsForCurrentUserLazy(permissions.BasePermission):
     _get_current_user_id: Callable[[Request, views.APIView], Optional[int]]
 
     def has_permission(self, request: Request, view: views.APIView) -> bool:
@@ -21,6 +22,16 @@ class IsForCurrentUser(permissions.BasePermission):
         current_user_id = self._get_current_user_id(request, view)
 
         return current_user_id is None or current_user_id == request.user.id
+
+
+class IsForCurrentUser(permissions.BasePermission):
+    def has_object_permission(
+        self,
+        request: Request,
+        view: views.APIView,
+        obj: Any,
+    ) -> bool:
+        return isinstance(obj, auth.models.User) and obj.id == request.user.id
 
 
 class IsMessageAuthor(permissions.BasePermission):

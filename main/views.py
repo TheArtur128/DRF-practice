@@ -3,7 +3,7 @@ from typing import Optional, TYPE_CHECKING
 
 from django.contrib import auth
 from django.http import Http404, HttpRequest
-from rest_framework import decorators, parsers, status, generics
+from rest_framework import decorators, parsers, status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.request import Request
@@ -94,7 +94,7 @@ class OrmMessageListEndpoint(
     ListModelMixin,
     CreateModelMixin,
 ):
-    class _IsMessageAuthorLazy(permissions.IsForCurrentUser):
+    class _IsMessageAuthorLazy(permissions.IsForCurrentUserLazy):
         def _get_current_user_id(
             self,
             request: Request,
@@ -185,4 +185,33 @@ def root_endpoint(request: Request, format: Optional[str] = None) -> Response:
         'long-term-message': reverse_('main:long-term-message', ['0']),
         'users': reverse_('main:users'),
         'user': reverse_('main:user', ['0']),
+        'read-only-users': reverse_('main:read-only-users'),
+        'profiles': reverse_('main:profiles'),
+        'profile': reverse_('main:profile', ['0']),
     })
+
+
+if TYPE_CHECKING:
+    _AReadOnlyModelViewSet = viewsets.ReadOnlyModelViewSet[auth.models.User]
+else:
+    _AReadOnlyModelViewSet = viewsets.ReadOnlyModelViewSet
+
+
+class ReadOnlyUserViewSet(_AReadOnlyModelViewSet):
+    queryset = auth.models.User.objects.all()
+    serializer_class = serializers.UserSerializer
+
+
+if TYPE_CHECKING:
+    _AModelViewSet = viewsets.ModelViewSet[auth.models.User]
+else:
+    _AModelViewSet = viewsets.ModelViewSet
+
+
+class ProfileViewSet(_AModelViewSet):
+    queryset = auth.models.User.objects.all()
+    serializer_class = serializers.ProfileSerializer
+
+    lookup_field = 'id'
+
+    permission_classes = [permissions.ReadOnly | permissions.IsForCurrentUser]

@@ -1,10 +1,24 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
+from rest_framework.routers import DefaultRouter
 
 from main import views
 
 
 app_name = "main"
+
+read_only_user_list_view = views.ReadOnlyUserViewSet.as_view({'get': 'list'})
+
+profile_list_view = views.ProfileViewSet.as_view({'get': 'list'})
+profile_view = views.ProfileViewSet.as_view({
+    'get': 'retrieve',
+    'delete': 'destroy',
+})
+
+router = DefaultRouter()
+
+router.register('read-only-users', views.ReadOnlyUserViewSet, 'read-only-user')
+router.register('profiles', views.ProfileViewSet, 'profile')
 
 urlpatterns = format_suffix_patterns([
     path('root', views.root_endpoint, name='root'),
@@ -30,4 +44,9 @@ urlpatterns = format_suffix_patterns([
     ),
     path('users', views.UserListEndpoint.as_view(), name='users'),
     path('user/<int:pk>', views.UserEndpoint.as_view(), name='user'),
+    path('read-only-users', read_only_user_list_view, name='read-only-users'),
+    path('profiles', profile_list_view, name='profiles'),
+    path('profile/<int:id>', profile_view, name='profile'),
 ])
+
+urlpatterns.append(path('other/', include(router.urls)))

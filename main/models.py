@@ -5,7 +5,7 @@ from django.contrib import auth
 class Message(models.Model):
     user = models.ForeignKey(
         auth.models.User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="messages",
         default=None,
         null=True,

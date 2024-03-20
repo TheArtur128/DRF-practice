@@ -60,3 +60,14 @@ class UserSerializer(serializers.ModelSerializer[auth.models.User]):
         fields = ["id", "username", "messages"]
 
     messages = OrmMessageSerializer(many=True, read_only=True)
+
+
+class ProfileSerializer(serializers.ModelSerializer[auth.models.User]):
+    class Meta:
+        model = auth.models.User
+        fields = ["id", "username", "password"]
+
+    password = serializers.CharField(write_only=True)
+
+    def validate_password(self, password: str) -> str:
+        return auth.hashers.make_password(password)
