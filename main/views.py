@@ -144,7 +144,10 @@ class OrmMessageEndpoint(_RetrieveAPIView, _UpdateAPIView, _DestroyAPIView):
     def get_object(self) -> models.Message:
         assert self.__message_id is not None
 
-        return models.Message.objects.get(id=self.__message_id)
+        return generics.get_object_or_404(
+            models.Message.objects,
+            id=self.__message_id,
+        )
 
 
 if TYPE_CHECKING:
