@@ -11,4 +11,4 @@ git clone https://github.com/TheArtur128/DRF-practice.git
 docker compose --project-directory ./DRF-practice up
 ```
 
-Go to http://localhost/api/root (or whatever host or protocol you choose) to get almost all endponits (the rest are in http://localhost/api/other).
+Go to http://localhost/api/root (or other host and protocol you chose) to get almost all endponits (the rest are in http://localhost/api/other).
