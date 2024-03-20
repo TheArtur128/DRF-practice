@@ -18,8 +18,10 @@ SECRET_KEY = getenv(
 
 DEBUG = True
 
+PROTOCOL = getenv("PROTOCOL", default="http://")
+DOMAIN = getenv("DOMAIN", default="localhost")
 
-HOST = getenv("HOST", default="http://localhost")
+HOST = f"{PROTOCOL}{DOMAIN}"
 
 ALLOWED_HOSTS = ['*']
 
@@ -47,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main.middleware.default_header_settings_middleware',
 ]
 
 ROOT_URLCONF = 'practice.urls'
@@ -105,3 +108,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 STATIC_URL = 'static/'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
+
+
+DEFAULT_HEADERS = {"HTTP_HOST": DOMAIN}

@@ -1,9 +1,11 @@
+from functools import partial
 from typing import Optional, TYPE_CHECKING
 
 from django.contrib import auth
 from django.http import Http404, HttpRequest
 from rest_framework import decorators, parsers, status, generics
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
@@ -170,3 +172,17 @@ else:
 class UserEndpoint(_UserEndpoint_RetrieveAPIView):
     queryset = auth.models.User.objects.all()
     serializer_class = serializers.UserSerializer
+
+
+@decorators.api_view(["GET"])
+def root_endpoint(request: Request, format: Optional[str] = None) -> Response:
+    reverse_ = partial(reverse, request=request, format=format)
+
+    return Response({
+        'temporary-messages': reverse_('main:temporary-messages'),
+        'temporary-message': reverse_('main:temporary-message', ['0']),
+        'long-term-messages': reverse_('main:long-term-messages'),
+        'long-term-message': reverse_('main:long-term-message', ['0']),
+        'users': reverse_('main:users'),
+        'user': reverse_('main:user', ['0']),
+    })
